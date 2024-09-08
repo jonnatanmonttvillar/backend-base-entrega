@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         USERNAME = "cmd"
+        SONARQUBE_SERVER = "SonarQube" // Nombre del servidor configurado en Jenkins
+        SONARQUBE_SCANNER_HOME = tool name: 'SonarQube Scanner' // Nombre de la herramienta configurada en Jenkins
     }
 
     stages {
@@ -13,24 +15,37 @@ pipeline {
                 }
             }
             stages {
-               stage('Instalar dependencias') {
-                   steps {
-                       sh 'npm install'
-                   }
-               } 
+                stage('Instalar dependencias') {
+                    steps {
+                        sh 'npm install'
+                    }
+                } 
                 stage('ejecucion de test') {
-                   steps {
-                       sh 'npm run test'
-                   }
-               } 
+                    steps {
+                        sh 'npm run test'
+                    }
+                } 
                 stage('ejecucion de build') {
-                   steps {
-                       sh 'npm run build'
-                   }
-               } 
+                    steps {
+                        sh 'npm run build'
+                    }
+                }
+                stage('SonarQube Analysis') {
+                    steps {
+                        script {
+                            def scannerHome = tool name: 'SonarQube Scanner'
+                            withSonarQubeEnv(SONARQUBE_SERVER) {
+                                sh "${scannerHome}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=my-project-key \
+                                    -Dsonar.sources=. \
+                                    -Dsonar.host.url=http://localhost:8084"
+                            }
+                        }
+                    }
+                }
             }
         }
-        stage('deploy'){
+        stage('deploy') {
             steps {
                 sh 'docker build -t backend-base-entrega:latest .'
                 sh 'docker tag backend-base-entrega:latest localhost:8082/backend-base-entrega:latest'
