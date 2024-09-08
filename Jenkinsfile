@@ -31,16 +31,9 @@ pipeline {
                     }
                 }
                 stage('SonarQube Analysis') {
-                    steps {
-                        script {
-                            def scannerHome = tool name: 'SonarQube Scanner'
-                            withSonarQubeEnv(SONARQUBE_SERVER) {
-                                sh "${scannerHome}/bin/sonar-scanner \
-                                    -Dsonar.projectKey=my-project-key \
-                                    -Dsonar.sources=. \
-                                    -Dsonar.host.url=http://localhost:8084"
-                            }
-                        }
+                    def scannerHome = tool 'SonarScanner';
+                    withSonarQubeEnv() {
+                    sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
