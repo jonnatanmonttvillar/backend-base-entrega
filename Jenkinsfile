@@ -32,9 +32,9 @@ pipeline {
         }
         stage('deploy'){
             steps {
-                sh 'docker build -t backend-base:latest .'
-                sh 'docker tag backend-base:latest localhost:8082/backend-base:latest'
-                sh 'docker push localhost:8082/backend-base:latest'
+                sh 'docker build -t backend-base-entrega:latest .'
+                sh 'docker tag backend-base-entrega:latest localhost:8082/backend-base-entrega:latest'
+                sh 'docker push localhost:8082/backend-base-entrega:latest'
             }
         }
     }
