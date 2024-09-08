@@ -2,18 +2,7 @@ pipeline {
     agent any
     environment {
         USERNAME = "cmd"
-    }
-    node {
-        stage('SCM') {
-            checkout scm
-        }
-        stage('SonarQube Analysis') {
-            def scannerHome = tool 'SonarScanner';
-            withSonarQubeEnv() {
-            sh "${scannerHome}/bin/sonar-scanner"
-            }
-        }
-    }
+    }   
     stages {
         stage('Build and test') {
             agent {
@@ -32,7 +21,13 @@ pipeline {
                    steps {
                        sh 'npm run test'
                    }
-               } 
+               }
+                stage('SonarQube Analysis') {
+                    def scannerHome = tool 'SonarScanner';
+                    withSonarQubeEnv() {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }  
                 stage('ejecucion de build') {
                    steps {
                        sh 'npm run build'
