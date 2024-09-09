@@ -41,7 +41,13 @@ pipeline {
                     }
                     steps {
                         withSonarQubeEnv('sonarqube') {
-                            sh 'sonar-scanner'
+                            sh '''
+                            sonar-scanner \
+                            -Dsonar.projectKey=backend-base \
+                            -Dsonar.scm.provider=git \
+                            -Dsonar.sources=src \
+                            -Dsonar.host.url=http://sonarqube:9000
+                            '''
                         }
                     }
                 }
