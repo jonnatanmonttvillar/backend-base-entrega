@@ -29,11 +29,35 @@ pipeline {
                } 
             }
         }
-        stage('deploy'){
+        stage('Code Quality'){
+            stages {
+                stage('SonarQube analysis'){
+                    agent {
+                        docker {
+                            image 'sonarsource/sonar-scanner-cli'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        withSonarQubeEnv('sonarqube') {
+                            sh 'sonar-scanner'
+                        }
+                    }
+                }
+            }
+        }
+        stage('delivery'){
             steps {
-                sh 'docker build -t backend-base:latest .'
-                sh 'docker tag backend-base:latest localhost:8082/backend-base:latest'
-                sh 'docker push localhost:8082/backend-base:latest'
+                script {
+                    docker.withRegistry('http://localhost:8082', 'nexus-key') {
+                        sh 'docker build -t backend-base:latest .'
+                        sh 'docker tag backend-base:latest localhost:8082/backend-base:latest'
+                        //sh 'docker tag backend-base:latest localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}'
+                        sh 'docker push localhost:8082/backend-base:latest'
+                        //sh 'docker push backend-base:latest localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}'
+                    }
+                }
+               
             }
         }
     }
