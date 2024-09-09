@@ -40,7 +40,8 @@ pipeline {
                     }
                     steps {
                         withSonarQubeEnv('sonarqube') {
-                            sh 'sonar-scanner -Dsonar.projectKey=backend-base -Dsonar.scm.provider=git -Dsonar.sources=src -Dsonar.host.url=http://sonarqube:9000'
+                            sh 'sonar-scanner '-Dsonar.projectKey=backend-base' '-Dsonar.scm.provider=git' '-Dsonar.sources=src' '-Dsonar.host.url=http://sonarqube:8084'
+'
                         }
                     }
                 }
