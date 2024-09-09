@@ -4,7 +4,7 @@ pipeline {
         USERNAME = "cmd"
     }   
     stages {
-        stage('Build and test') {
+        stage('Build and Test') {
             agent {
                 docker {
                     image 'node:20.11.1-alpine3.19' 
@@ -12,53 +12,53 @@ pipeline {
                 }
             }
             stages {
-               stage('Instalar dependencias') {
-                   steps {
-                       sh 'npm install'
-                   }
-               } 
-                stage('ejecucion de test') {
-                   steps {
-                       sh 'npm run test'
-                   }
-               }
-                stage('ejecucion de build') {
-                   steps {
-                       sh 'npm run build'
-                   }
-               } 
+                stage('Install Dependencies') {
+                    steps {
+                        sh 'npm install'
+                    }
+                } 
+                stage('Run Tests') {
+                    steps {
+                        sh 'npm run test'
+                    }
+                }
+                stage('Build') {
+                    steps {
+                        sh 'npm run build'
+                    }
+                } 
             }
         }
-        stage('Code Quality'){
-            stages {
-                stage('SonarQube analysis'){
-                    agent {
-                        docker {
-                            image 'sonarsource/sonar-scanner-cli'
-                            reuseNode true
-                        }
-                    }
-                    steps {
-                        withSonarQubeEnv('sonarqube') {
-                            sh 'sonar-scanner '-Dsonar.projectKey=backend-base' '-Dsonar.scm.provider=git' '-Dsonar.sources=src' '-Dsonar.host.url=http://sonarqube:8084'
-'
-                        }
-                    }
+        
+        stage('Code Quality') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli'
+                    reuseNode true
+                }
+            }
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=backend-base \
+                      -Dsonar.scm.provider=git \
+                      -Dsonar.sources=src \
+                      -Dsonar.host.url=http://sonarqube:8084
+                    '''
                 }
             }
         }
-        stage('delivery'){
+        
+        stage('Delivery') {
             steps {
                 script {
                     docker.withRegistry('http://localhost:8082', 'nexus-key') {
                         sh 'docker build -t backend-base:latest .'
                         sh 'docker tag backend-base:latest localhost:8082/backend-base:latest'
-                        //sh 'docker tag backend-base:latest localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}'
                         sh 'docker push localhost:8082/backend-base:latest'
-                        //sh 'docker push backend-base:latest localhost:8082/backend-base:${env.BRANCH_NAME}-${env.BUILD_NUMBER}'
                     }
                 }
-               
             }
         }
     }
