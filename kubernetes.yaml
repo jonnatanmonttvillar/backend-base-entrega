@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend-base
-        image: localhost:8082/backend-base:latest
+        image: localhost:8082/backend-base-entrega:latest
         ports:
         - containerPort: 3001
 ---
