@@ -6,8 +6,8 @@ metadata:
     app: backend-base
 spec:
   replicas: 3
-  selector: 
-    matchLabels: 
+  selector:
+    matchLabels:
       app: backend-base
   template:
     metadata:
@@ -17,6 +17,36 @@ spec:
       containers:
       - name: backend-base
         image: localhost:8082/backend-base:latest
-        ports:
+        imagePullPolicy: Always
+        env:
+        - name: USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: backend-base
+              key: USERNAME
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-base
+              key: API_KEY_BACKEND
+         ports:
         - containerPort: 3001
+      imagePullSecrets:
+      - name: regcred
+
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-base-deployment
+  labels:
+    app: backend-base
+spec:
+  selector:
+    app: backend-base
+  ports:
+    - protocolo: TCP
+      port: 80
+      targetPort: 3001
+  type: NodePort
+    
